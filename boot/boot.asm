@@ -40,7 +40,7 @@ hang:
 dap:
     db 0x10             ; tamanho
     db 0x00             ; reservado
-    dw 1                ; setores para ler
+    dw 4                ; setores para ler
     dw 0x8000           ; offset destino
     dw 0x0000           ; segmento destino
     dq 1                ; LBA (setor 1 = stage2)
