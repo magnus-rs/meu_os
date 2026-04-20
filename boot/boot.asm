@@ -10,15 +10,11 @@ start:
     mov sp, 0x7C00
     sti
 
-    ; carregar stage2 para 0x8000
-    mov ah, 0x02        ; função: ler setores
-    mov al, 1           ; número de setores
-    mov ch, 0           ; cilindro
-    mov cl, 2           ; setor (1 = MBR, 2 = próximo)
-    mov dh, 0           ; head
-    mov dl, 0x80        ; disco (HD)
-    mov bx, 0x8000      ; destino
+    ; configurar DAP
+    mov si, dap
 
+    mov ah, 0x42        ; extensão LBA
+    mov dl, 0x80        ; HD
     int 0x13
     jc disk_error
 
@@ -39,7 +35,17 @@ print:
 hang:
     jmp $
 
-err db 'Erro ao ler disco!', 0
+; ------------------------
+; Disk Address Packet
+dap:
+    db 0x10             ; tamanho
+    db 0x00             ; reservado
+    dw 1                ; setores para ler
+    dw 0x8000           ; offset destino
+    dw 0x0000           ; segmento destino
+    dq 1                ; LBA (setor 1 = stage2)
+
+err db 'Erro LBA!', 0
 
 times 510 - ($ - $$) db 0
 dw 0xAA55
