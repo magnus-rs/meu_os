@@ -1,0 +1,60 @@
+BITS 16
+ORG 0x8000
+
+start:
+    cli
+
+    xor ax, ax
+    mov ds, ax
+
+    sti
+
+    mov ah, 0x88
+    int 0x15
+
+    jc erro
+
+    ; AX = memória em KB acima de 1MB
+    call print_hex
+
+    jmp $
+
+erro:
+    mov si, msg
+    call print
+    jmp $
+
+; ----------------
+
+print:
+.next:
+    lodsb
+    or al, al
+    jz .done
+    mov ah, 0x0E
+    int 0x10
+    jmp .next
+.done:
+    ret
+
+print_hex:
+    mov cx, 4
+.hex:
+    rol ax, 4
+    mov dl, al
+    and dl, 0x0F
+
+    cmp dl, 9
+    jbe .num
+    add dl, 7
+.num:
+    add dl, '0'
+
+    mov al, dl
+    mov ah, 0x0E
+    int 0x10
+
+    loop .hex
+    ret
+
+msg db "ERRO MEMORIA", 0

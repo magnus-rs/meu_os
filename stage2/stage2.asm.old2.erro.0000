@@ -1,0 +1,73 @@
+BITS 16
+ORG 0x8000
+
+start:
+    cli
+
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+
+    sti
+
+    mov ax, 0x9000
+    mov es, ax
+    xor di, di
+
+    xor ebx, ebx
+
+    mov eax, 0xE820
+    mov edx, 0x534D4150
+    mov ecx, 24
+
+    int 0x15
+    jc erro
+
+    cmp eax, 0x534D4150
+    jne erro
+
+    ; imprime tipo retornado
+    mov ax, [es:di + 16]
+    call print_hex
+
+    jmp $
+
+erro:
+    mov si, msg_erro
+    call print
+    jmp $
+
+; ----------------
+
+print:
+.next:
+    lodsb
+    or al, al
+    jz .done
+    mov ah, 0x0E
+    int 0x10
+    jmp .next
+.done:
+    ret
+
+print_hex:
+    mov cx, 4
+.hex:
+    rol ax, 4
+    mov dl, al
+    and dl, 0x0F
+
+    cmp dl, 9
+    jbe .num
+    add dl, 7
+.num:
+    add dl, '0'
+
+    mov al, dl
+    mov ah, 0x0E
+    int 0x10
+
+    loop .hex
+    ret
+
+msg_erro db "E820 FALHOU", 0
