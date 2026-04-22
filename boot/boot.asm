@@ -10,11 +10,13 @@ start:
     mov sp, 0x7C00
     sti
 
+    mov [BOOT_DRIVE], dl
+
     ; configurar DAP
     mov si, dap
 
-    mov ah, 0x42        ; extensão LBA
-    mov dl, 0x80        ; HD
+    mov ah, 0x42          ; extensão LBA
+    mov dl, [BOOT_DRIVE]  ; HD
     int 0x13
     jc disk_error
 
@@ -44,6 +46,8 @@ dap:
     dw 0x8000           ; offset destino
     dw 0x0000           ; segmento destino
     dq 1                ; LBA (setor 1 = stage2)
+
+BOOT_DRIVE db 0
 
 err db 'Erro LBA!', 0
 
